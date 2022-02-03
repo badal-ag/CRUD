@@ -11,6 +11,8 @@ function App() {
   const [users, setUsers] = useState([]);
   const usersCollectionRef = collection(db, "users");
 
+  // Create New User
+
   const createUser = async () => {
 
     await addDoc(usersCollectionRef, {name: newName, age: Number(newAge)}).then( res=> {
@@ -18,6 +20,8 @@ function App() {
     }).catch(err=> alert("Oops! User not Added. Kindly Try Again."));
 
   };
+
+  // Update User Age
 
   const updateUser = async (id, age) => {
 
@@ -29,13 +33,14 @@ function App() {
 
   };
 
+  // Delete User
+
   const deleteUser = async (id) => {
 
     const userDoc = doc(db, "users", id);
     await deleteDoc(userDoc).then(res => {
       alert('User Deleted Successfully! Refresh the Page to See the Latest List.');
     }).catch(err => alert("User not Deleted. Kindly Try Again."));
-
 
   };
 
