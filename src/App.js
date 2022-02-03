@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from './firebase-config';
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import './App.css';
 
 function App() {
@@ -12,10 +12,30 @@ function App() {
   const usersCollectionRef = collection(db, "users");
 
   const createUser = async () => {
-    
-    await addDoc(usersCollectionRef, {name: newName, age: newAge}).then( res=> {
-      alert("New User Added Successfully.");
-      }).catch(err=> alert("Oops! User not Added. Kindly Try Again."));
+
+    await addDoc(usersCollectionRef, {name: newName, age: Number(newAge)}).then( res=> {
+      alert("New User Added Successfully! Refresh the Page to See the Latest List.");
+    }).catch(err=> alert("Oops! User not Added. Kindly Try Again."));
+
+  };
+
+  const updateUser = async (id, age) => {
+
+    const userDoc = doc(db, "users", id);
+    const newFields = {age: age + 1}
+    await updateDoc(userDoc, newFields).then(res => {
+      alert('Age Increased Successfully! Refresh the Page to See the Latest List.');
+    }).catch(err => alert("Age not Changed. Kindly Try Again."));
+
+  };
+
+  const deleteUser = async (id) => {
+
+    const userDoc = doc(db, "users", id);
+    await deleteDoc(userDoc).then(res => {
+      alert('User Deleted Successfully! Refresh the Page to See the Latest List.');
+    }).catch(err => alert("User not Deleted. Kindly Try Again."));
+
 
   };
 
@@ -25,9 +45,7 @@ function App() {
         const data = await getDocs(usersCollectionRef);
         setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
     };
-
     getUsers();
-
   }, [])
 
   return (
@@ -36,6 +54,7 @@ function App() {
       <input type="text" placeholder='Enter Name' onChange={(event) => {setNewName(event.target.value); }}/>
       <input type="number" placeholder='Enter Age' onChange={(event) => {setNewAge(event.target.value); }}/>
       <button onClick={createUser}>Create New User</button>
+      <button><a href='https://github.com/badal-ag' target='_blank'>Visit Github</a></button>
 
       {users.map((user) => {
         return (
@@ -43,6 +62,8 @@ function App() {
             {" "}
             <h1>Name: {user.name} </h1>
             <h1>Age: {user.age} </h1>
+            <button onClick={() => { updateUser(user.id, user.age) }}>Increase Age by 1</button>
+            <button onClick={() => { deleteUser(user.id) }}>Delete User</button>
           </div>
         );
       })}
