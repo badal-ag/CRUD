@@ -1,18 +1,30 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { db } from './firebase-config';
-import { collection } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import './App.css';
 
 function App() {
 
+  const [newName, setNewName] = useState("");
+  const [newAge, setNewAge] = useState(0);
+
   const [users, setUsers] = useState([]);
   const usersCollectionRef = collection(db, "users");
+
+  const createUser = async () => {
+    
+    await addDoc(usersCollectionRef, {name: newName, age: newAge}).then( res=> {
+      alert("New User Added Successfully.");
+      }).catch(err=> alert("Oops! User not Added. Kindly Try Again."));
+
+  };
 
   useEffect(() => {
 
     const getUsers = async () => {
-        
-    }
+        const data = await getDocs(usersCollectionRef);
+        setUsers(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
+    };
 
     getUsers();
 
@@ -20,6 +32,20 @@ function App() {
 
   return (
     <div className="App">
+
+      <input type="text" placeholder='Enter Name' onChange={(event) => {setNewName(event.target.value); }}/>
+      <input type="number" placeholder='Enter Age' onChange={(event) => {setNewAge(event.target.value); }}/>
+      <button onClick={createUser}>Create New User</button>
+
+      {users.map((user) => {
+        return (
+          <div>
+            {" "}
+            <h1>Name: {user.name} </h1>
+            <h1>Age: {user.age} </h1>
+          </div>
+        );
+      })}
       
     </div>
   );
